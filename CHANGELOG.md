@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Indentation in exceptions won't be underlined https://github.com/Textualize/rich/pull/3678
 - Rich tracebacks will now render Exception Groups https://github.com/Textualize/rich/pull/3677
 
+### Security
+
+- Replaced insecure `marshal` serialization with JSON and used `uuid4` for link identifiers.
+- Sanitized hyperlinks in HTML output.
+- Limited markup meta parameter length to avoid denial of service.
+- Removed `shell=True` from tools/make_terminal_widths.py.
+
 ## [13.9.4] - 2024-11-01
 
 ### Changed
