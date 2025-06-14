@@ -1,4 +1,6 @@
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Sequence
+from urllib.parse import urlsplit
+from html import escape as html_escape
 
 if TYPE_CHECKING:
     from rich.console import ConsoleRenderable
@@ -61,6 +63,13 @@ def _render_segments(segments: Iterable[Segment]) -> str:
         """Escape html."""
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
+    def sanitize_url(url: str) -> str:
+        """Return a safe version of a URL or an empty string if invalid."""
+        parsed = urlsplit(url)
+        if parsed.scheme not in ("http", "https"):
+            return ""
+        return html_escape(url, quote=True)
+
     fragments: List[str] = []
     append_fragment = fragments.append
     theme = DEFAULT_TERMINAL_THEME
@@ -72,7 +81,9 @@ def _render_segments(segments: Iterable[Segment]) -> str:
             rule = style.get_html_style(theme)
             text = f'<span style="{rule}">{text}</span>' if rule else text
             if style.link:
-                text = f'<a href="{style.link}" target="_blank">{text}</a>'
+                safe_link = sanitize_url(style.link)
+                if safe_link:
+                    text = f'<a href="{safe_link}" target="_blank">{text}</a>'
         append_fragment(text)
 
     code = "".join(fragments)

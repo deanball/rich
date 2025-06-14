@@ -82,7 +82,7 @@ CELL_WIDTHS = {widths_table!r}
     with open("../rich/_cell_widths.py", "wt") as fh:
         fh.write(table_file)
 
-    subprocess.run("black ../rich/_cell_widths.py", shell=True)
+    subprocess.run(["black", "../rich/_cell_widths.py"])
 
 
 if __name__ == "__main__":

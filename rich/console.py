@@ -9,6 +9,7 @@ from datetime import datetime
 from functools import wraps
 from getpass import getpass
 from html import escape
+from urllib.parse import urlsplit
 from inspect import isclass
 from itertools import islice
 from math import ceil
@@ -76,6 +77,15 @@ if TYPE_CHECKING:
 JUPYTER_DEFAULT_COLUMNS = 115
 JUPYTER_DEFAULT_LINES = 100
 WINDOWS = sys.platform == "win32"
+
+
+def sanitize_url(url: str) -> str:
+    """Return an escaped URL if the scheme is allowed, otherwise an empty string."""
+    parsed = urlsplit(url)
+    if parsed.scheme not in ("http", "https"):
+        return ""
+    return escape(url, quote=True)
+
 
 HighlighterType = Callable[[Union[str, "Text"]], "Text"]
 JustifyMethod = Literal["default", "left", "center", "right", "full"]
@@ -2252,7 +2262,9 @@ class Console:
                     if style:
                         rule = style.get_html_style(_theme)
                         if style.link:
-                            text = f'<a href="{style.link}">{text}</a>'
+                            safe_link = sanitize_url(style.link)
+                            if safe_link:
+                                text = f'<a href="{safe_link}">{text}</a>'
                         text = f'<span style="{rule}">{text}</span>' if rule else text
                     append(text)
             else:
@@ -2265,7 +2277,9 @@ class Console:
                         rule = style.get_html_style(_theme)
                         style_number = styles.setdefault(rule, len(styles) + 1)
                         if style.link:
-                            text = f'<a class="r{style_number}" href="{style.link}">{text}</a>'
+                            safe_link = sanitize_url(style.link)
+                            if safe_link:
+                                text = f'<a class="r{style_number}" href="{safe_link}">{text}</a>'
                         else:
                             text = f'<span class="r{style_number}">{text}</span>'
                     append(text)

@@ -186,6 +186,8 @@ def render(
                                 "()" if match_parameters is None else match_parameters
                             )
 
+                        if len(parameters) > 200:
+                            raise MarkupError("meta parameters too long")
                         try:
                             meta_params = literal_eval(parameters)
                         except SyntaxError as error:
@@ -200,9 +202,11 @@ def render(
                         if handler_name:
                             meta_params = (
                                 handler_name,
-                                meta_params
-                                if isinstance(meta_params, tuple)
-                                else (meta_params,),
+                                (
+                                    meta_params
+                                    if isinstance(meta_params, tuple)
+                                    else (meta_params,)
+                                ),
                             )
 
                     else:
